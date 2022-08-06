@@ -1,18 +1,19 @@
 import logo from './logo.svg';
 import './App.css';
-import React, { useState, useEffect } from 'react';
+import React, { useCallback ,useState, useEffect } from 'react';
 import axios from 'axios';
 import Cards from './components/Cards';
 import Profile from './components/Profile';
 import { useDispatch, useSelector } from "react-redux";
-import { fetchDetailData, useConverter } from "../store/actions/actionCreator";
+import { fetchDetailData } from "./store/actions/actionCreator";
 import {Row,Col,Container } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
+import { connect } from "react-redux";
 function App() {
   const dispatch = useDispatch();
 
   const [username, setUsername] = useState("")
+
   const [historyFilter, setHistoryFilter] = useState("")
   const [repoFilter, setRepoFilter] = useState("")
   const [repoFiltered, setRepoFiltered] = useState([])
@@ -20,7 +21,7 @@ function App() {
   const [showHistory, setShowHistory] = useState(false);
   const [historySearch,setHistorySearch]=useState([]);
   const [historyFilteredSearch,setHistoryFilteredSearch]=useState([]);
-  const [eventFromHistory,setEventFromHistory]=useState("");
+  const [eventFromHistory,setEventFromHistory]=useState(false);
 
   const repo = useSelector(state => state.repo.repo);
   const profile = useSelector(state => state.repo.profile);
@@ -28,6 +29,7 @@ function App() {
   
   function handleChange(event) {
     setUsername(event.target.value);
+    
   }
 
   function handleChangeFilterHistory(event) {
@@ -85,37 +87,32 @@ function App() {
     
   },[profile]);
 
-  useEffect(() => {
-    if(eventFromHistory!=""){
-      handleSubmit(eventFromHistory);
-    }
-    
-  },[username]);
+  // useEffect(() => {
+  //   dispatch(fetchDetailData("test"));
+  // }, []);
 
-  useEffect(() => {
-    if(eventFromHistory!=""){
-      handleSubmit(eventFromHistory);
-    }
-    
-  },[username]);
-
-  function handleSubmit(event) {
-    event.preventDefault();
+  const handleSubmitLogin = e => {
+    e.preventDefault();
     if(!haveEntered){
       setHaveEntered(true);
     }
+    setEventFromHistory(true);
     dispatch(fetchDetailData(username));
-    
-  }
+  };
+
 
   function toggleHistory(event) {
     console.log("Clicked"+showHistory)
     setShowHistory(!showHistory);
   }
 
-  function setSearchFromHistory(event) {
-    setEventFromHistory(event);
+  function useSearchFromHistory(event) {
+    // useHandleSubmit(event.target.textContent);
+    
     setUsername(event.target.textContent);
+    setEventFromHistory(true);
+    dispatch(fetchDetailData(event.target.textContent));
+    
   }
 
   function clearHistory(event) {
@@ -130,7 +127,7 @@ function App() {
     </Row>
       <Row style={{backgroundColor:"white"}}>
       <Col style={{backgroundColor:"#E3E3E3"}}>
-    <form className="mb-3" onSubmit={handleSubmit}>
+    <form className="mb-3" onSubmit={handleSubmitLogin}>
       <Row className="align-items-center text-center justify-content-center"><Col>
       <label className="text-muted">
         Get Repository(s) by Username:</label>
@@ -151,7 +148,7 @@ function App() {
     
     {showHistory?
     <ul>
-    {historyFilteredSearch.map((item) => <li key={item} onClick={setSearchFromHistory}>{item}</li>)}
+    {historyFilteredSearch.map((item) => <li key={item} onClick={useSearchFromHistory}>{item}</li>)}
     </ul>:<p></p>}
     </Col>
     </Row>
@@ -174,5 +171,4 @@ function App() {
     </Container>
   );
 }
-
-export default App;
+export default connect()(App);

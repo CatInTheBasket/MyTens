@@ -30,37 +30,31 @@ export const repoSetStatus = payload => {
   };
 };
 
-export const setRepo = (username) => {
-  const dispatch = useDispatch();
-
-  const Repo = repo => {
-    axios({
-      method: 'get',
-      url: baseURL+username
-    })
-      .then(function (response) {
-        console.log(response.data);
-        dispatch(profileSet(response.data));
+export function fetchDetailData(username) {
+  return async function(dispatch) {
+    try {
+      const res = await 
         axios({
           method: 'get',
-          url: baseURL+username+baseRepo
-        })
-          .then(function (response) {
-            dispatch(repoSetStatus(true));
-            dispatch(repoSucess(response.data));
-            
-          }).catch((error)=>{
-            console.log(error);
-            dispatch(repoSucess([]));
-          });
-      }).catch((error)=>{
-        console.log(error);
-        dispatch(repoSucess([]));
-        dispatch(repoSetStatus(false));
-        dispatch(profileSet(""));
+          url: baseURL+username
+        });
+      dispatch(profileSet(res.data));
+      const temp = await axios({
+        method: 'get',
+        url: baseURL+username+baseRepo
       });
+      dispatch(repoSetStatus(true));
+      dispatch(repoSucess(temp.data));
+      
+    } catch (err) {
+      dispatch(repoSucess([]));
+            dispatch(repoSetStatus(false));
+            dispatch(profileSet(""));
+      console.log(err);
+    } finally {
+      // dispatch(isLoading(false));
+    }
+  };
+}
 
-  }
-  return { Repo };
-};
 

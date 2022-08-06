@@ -18,7 +18,7 @@ function repoReducer(state = initialState, action) {
     case REPO_STATUS:
       return { ...state, successGetRepo: action.payload };
     case PROFILE:
-      return { ...state, historySearch: action.payload };
+      return { ...state, profile: action.payload };
     default:
       return state;
   }
