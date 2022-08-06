@@ -4,24 +4,28 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Cards from './components/Cards';
 import Profile from './components/Profile';
-
+import { useDispatch, useSelector } from "react-redux";
+import { fetchDetailData, useConverter } from "../store/actions/actionCreator";
 import {Row,Col,Container } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
+  const dispatch = useDispatch();
+
   const [username, setUsername] = useState("")
   const [historyFilter, setHistoryFilter] = useState("")
   const [repoFilter, setRepoFilter] = useState("")
-  const [profile, setProfile] = useState("")
-  const [repo, setRepo] = useState([])
   const [repoFiltered, setRepoFiltered] = useState([])
-  const [successGetRepo, setSuccessGetRepo] = useState(false);
   const [haveEntered, setHaveEntered] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [historySearch,setHistorySearch]=useState([]);
   const [historyFilteredSearch,setHistoryFilteredSearch]=useState([]);
   const [eventFromHistory,setEventFromHistory]=useState("");
 
+  const repo = useSelector(state => state.repo.repo);
+  const profile = useSelector(state => state.repo.profile);
+  const successGetRepo = useSelector(state => state.repo.successGetRepo);
+  
   function handleChange(event) {
     setUsername(event.target.value);
   }
@@ -66,6 +70,22 @@ function App() {
   },[repoFilter,repo]);
 
   useEffect(() => {
+    if(username!=""){
+      if(profile!=""){
+        let temp=[];
+        historySearch.forEach(element => {
+          if(element!=username){
+            temp.push(element);
+          }
+        });
+        temp.push(username);
+        setHistorySearch(temp);
+      }
+    }
+    
+  },[profile]);
+
+  useEffect(() => {
     if(eventFromHistory!=""){
       handleSubmit(eventFromHistory);
     }
@@ -84,41 +104,7 @@ function App() {
     if(!haveEntered){
       setHaveEntered(true);
     }
-    axios({
-      method: 'get',
-      url: 'https://api.github.com/users/'+username
-    })
-      .then(function (response) {
-        console.log(response.data);
-        setProfile(response.data);
-        axios({
-          method: 'get',
-          url: 'https://api.github.com/users/'+username+'/repos'
-        })
-          .then(function (response) {
-            console.log(response.data);
-            setSuccessGetRepo(true);
-            setRepo(response.data);
-            let tempHistory=[];
-            historySearch.forEach(element => {
-              if(element!=username){
-                tempHistory.push(element);
-              }
-              
-            });
-            tempHistory.push(username);
-            setHistorySearch(tempHistory);
-            
-          }).catch((error)=>{
-            console.log(error);
-            setRepo([]);
-          });
-      }).catch((error)=>{
-        console.log(error);
-        setRepo([]);
-        setSuccessGetRepo(false);
-        setProfile("")
-      });
+    dispatch(fetchDetailData(username));
     
   }
 
