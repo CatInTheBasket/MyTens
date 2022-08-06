@@ -6,11 +6,11 @@ function Cards({object}) {
     window.open(object.html_url, "_blank");
   }  
   return (
-    <Card className="mb-4 text-white bg-dark h-100" style={{ width: '20rem',margin: "10px" }}>
+    <Card className="d-flex mb-4 text-white bg-dark h-100" style={{ width: '20rem',margin: "10px" }}>
       
       <Card.Body className="justify-content-center">
         <h2 className="text-center font-weight-bold">{object.name}</h2>
-        <textarea readonly className="text-white bg-dark" value={object.description?object.description:"No description, website, or topics provided. "}>
+        <textarea readOnly className="text-white bg-dark" value={object.description?object.description:"No description, website, or topics provided. "}>
           
         </textarea>
         <Button variant="primary" onClick={redirectToRepo}>Go to repo</Button>
