@@ -21,6 +21,9 @@ function App() {
       .then(function (response) {
         console.log(response.data);
         setRepo(response.data);
+      }).catch((error)=>{
+        console.log(error);
+        setRepo([]);
       });
   }
   return (
