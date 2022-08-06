@@ -16,10 +16,17 @@ function App() {
   const [haveEntered, setHaveEntered] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [historySearch,setHistorySearch]=useState([]);
-
+  const [eventFromHistory,setEventFromHistory]=useState("");
   function handleChange(event) {
     setUsername(event.target.value);
   }
+
+  useEffect(() => {
+    if(eventFromHistory!=""){
+      handleSubmit(eventFromHistory);
+    }
+    
+  },[username]);
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -43,9 +50,11 @@ function App() {
             setRepo(response.data);
             let tempHistory=[];
             historySearch.forEach(element => {
-              tempHistory.push(element);
+              if(element!=username){
+                tempHistory.push(element);
+              }
+              
             });
-            if(!tempHistory.includes(username))
             tempHistory.push(username);
             setHistorySearch(tempHistory);
             
@@ -63,7 +72,13 @@ function App() {
   }
 
   function toggleHistory(event) {
+    
     setShowHistory(!showHistory);
+  }
+
+  function setSearchFromHistory(event) {
+    setEventFromHistory(event);
+    setUsername(event.target.textContent);
   }
 
   function clearHistory(event) {
@@ -94,7 +109,7 @@ function App() {
     
     {showHistory?
     <ul>
-    {historySearch.map((item) => <li key={item}>{item}</li>)}
+    {historySearch.map((item) => <li key={item} onClick={setSearchFromHistory}>{item}</li>)}
     </ul>:<p></p>}
     </Col>
     </Row>
